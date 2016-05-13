@@ -11,6 +11,7 @@
 @interface ViewController ()
 
 @property (nonatomic, weak) UITextField* billAmountTextField;
+
 @property (nonatomic) UIButton* calculateTipButton;
 
 @end
@@ -53,6 +54,8 @@
     //self.billAmountTextField.delegate = self;
     [self.view addSubview:self.billAmountTextField];
  
+    //billamounttextfield.text convert with NSDecimalNumberWithString to be passedinto calculate tip method
+    
     //[self customizeKeyboard];
     
 }
@@ -66,18 +69,24 @@
     self.calculateTipButton.titleLabel.textColor = [UIColor blackColor];
     //self.calculateTipButton.font = [UIFont systemFontOfSize:10];
     [self.calculateTipButton setTitle:@"Tip" forState:UIControlStateNormal];
-    [self.calculateTipButton addTarget:self action:@selector(calculateTip:) forControlEvents:UIControlEventTouchUpInside];
-    //self.calculateTipButton.titleLabel.text = @"Tip";
+    [self.calculateTipButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.calculateTipButton setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
+    [self.calculateTipButton addTarget:self action:@selector(calculateTip) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.calculateTipButton];
     
 }
 
--(float)calculateTip:(float)bill {
+//NSDecimalNumberWithString:
+-(NSNumber*)calculateTip {
+
+    NSDecimalNumber *inputValue = [NSDecimalNumber decimalNumberWithString:self.billAmountTextField.text];
+   
+    NSDecimalNumber *percent = [NSDecimalNumber decimalNumberWithString:@"0.15"];
+    NSDecimalNumber *output = [inputValue decimalNumberByMultiplyingBy:percent];
     
-    float tip;
-    tip = 0.15 * bill;
+    //NSDecimalNumberMultiplier:
     
-    return tip;
+    return output;
 }
 
 //- (void)customizeKeyboard {
