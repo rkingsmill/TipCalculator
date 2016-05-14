@@ -66,7 +66,7 @@
     self.billAmountTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
     self.billAmountTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     //self.billAmountTextField.delegate = self;
- 
+    [self.billAmountTextField addTarget:self action:@selector(calculateAndDisplayTip) forControlEvents:UIControlEventEditingChanged];
     
     [self.view addSubview:self.billAmountTextField];
     
@@ -82,9 +82,8 @@
     [self.calculateTipButton setTitle:@"Go" forState:UIControlStateNormal];
     [self.calculateTipButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [self.calculateTipButton setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
-    [self.calculateTipButton addTarget:self action:@selector(calculateAndDisplayTip) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.calculateTipButton];
-    
+    [self.calculateTipButton addTarget:self action:@selector(calculateAndDisplayTip) forControlEvents:UIControlEventTouchUpInside];
 }
 
 -(void)setupTipLabel {
@@ -108,7 +107,6 @@
     //self.billAmountTextField.delegate = self;
     [self.view addSubview:self.tipTextField];
     
-    
 }
 
 -(void)setupSlider {
@@ -121,10 +119,8 @@
 }
 
 -(void)calculateAndDisplayTip {
-
-
-    
     NSDecimalNumber *inputValue = [NSDecimalNumber decimalNumberWithString:self.billAmountTextField.text];
+  
     NSDecimalNumber *percent = [NSDecimalNumber decimalNumberWithString:self.tipTextField.text];
     NSDecimalNumber *convert = [NSDecimalNumber decimalNumberWithString:@"100"];
     NSDecimalNumber *decimal = [percent decimalNumberByDividingBy:convert];
@@ -137,6 +133,7 @@
     
     NSString *tip = [formatter stringFromNumber:tipAmount];
     self.tipAmountLabel.text = tip;
+
     
 }
 
