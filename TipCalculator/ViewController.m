@@ -14,6 +14,9 @@
 @property (nonatomic) UIButton* calculateTipButton;
 @property (nonatomic, strong) UILabel* tipAmountLabel;
 @property (nonatomic) UITextField* tipTextField;
+@property (nonatomic) CGFloat* bottomConstraint;
+@property (nonatomic) UISlider *slider;
+@property (nonatomic) BOOL raiseKeyboard;
 
 @end
 
@@ -22,21 +25,30 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    
+    
     self.view.backgroundColor = [UIColor blackColor];
-    self.billAmountTextField = [[UITextField alloc] initWithFrame:CGRectMake(10, 100, 300, 40)];
+    self.billAmountTextField = [[UITextField alloc] initWithFrame:CGRectMake(10, 600, 300, 40)];
     [self setupTextField];
     
-    self.calculateTipButton = [[UIButton alloc]initWithFrame:CGRectMake(330, 100, 60, 40)];
+    self.calculateTipButton = [[UIButton alloc]initWithFrame:CGRectMake(330, 600, 60, 40)];
     [self setupTipButton];
     
-    self.tipAmountLabel = [[UILabel alloc]initWithFrame:CGRectMake(250, 200, 100, 40)];
+    self.tipAmountLabel = [[UILabel alloc]initWithFrame:CGRectMake(250, 500, 100, 40)];
     [self setupTipLabel];
     
-    self.tipTextField = [[UITextField alloc]initWithFrame:CGRectMake(10, 50, 150, 40)];
+    self.tipTextField = [[UITextField alloc]initWithFrame:CGRectMake(10, 500, 150, 40)];
     [self setupTipTextField];
     
-    // Do any additional setup after loading the view, typically from a nib.
+    self.slider = [[UISlider alloc]initWithFrame:CGRectMake(10, 450, 300, 40)];
+    [self setupSlider];
+    self.slider.enabled = YES;
+                                                               
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
 }
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -54,6 +66,8 @@
     self.billAmountTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
     self.billAmountTextField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     //self.billAmountTextField.delegate = self;
+ 
+    
     [self.view addSubview:self.billAmountTextField];
     
     //[self customizeKeyboard];
@@ -94,12 +108,22 @@
     //self.billAmountTextField.delegate = self;
     [self.view addSubview:self.tipTextField];
     
-    //[self customizeKeyboard];
     
+}
+
+-(void)setupSlider {
+    
+    self.slider.maximumValue = 100;
+    self.slider.minimumValue = 0;
+    self.slider.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:self.slider];
+    [self.slider addTarget:self action:@selector(updateTipPercentage) forControlEvents:UIControlEventValueChanged];
 }
 
 -(void)calculateAndDisplayTip {
 
+
+    
     NSDecimalNumber *inputValue = [NSDecimalNumber decimalNumberWithString:self.billAmountTextField.text];
     NSDecimalNumber *percent = [NSDecimalNumber decimalNumberWithString:self.tipTextField.text];
     NSDecimalNumber *convert = [NSDecimalNumber decimalNumberWithString:@"100"];
@@ -116,15 +140,46 @@
     
 }
 
+-(void)updateTipPercentage {
+    
+    int sliderInt = (int) self.slider.value;
+    NSString *sliderString= [NSString stringWithFormat:@"%i", sliderInt];
+    self.tipTextField.text = sliderString;
+}
+
+- (void)adjustViewForKeyboardHeight:(CGFloat)height {
+
+    if (self.raiseKeyboard == NO) {
+        
+    CGRect viewBounds = self.view.bounds;
+    viewBounds.origin.y = height;
+    self.view.bounds = viewBounds;
+        
+        self.raiseKeyboard = ! self.raiseKeyboard;
+    }
+  
+}
+
+- (void)keyboardWillHide:(NSNotification *)notification {
+    CGFloat kbHeight = [self heightForNotification:notification];
+    [self adjustViewForKeyboardHeight:-kbHeight];
+    
+    self.raiseKeyboard = NO;
+}
 
 
-//- (void)customizeKeyboard {
-//    
-//    self.billAmountTextField.autocorrectionType = NO;
-//    self.billAmountTextField.keyboardType = UIKeyboardTypeDecimalPad;
-//}
+- (void)keyboardWillShow:(NSNotification*)notification {
+    
+    CGFloat kbHeight = [self heightForNotification:notification];
+    [self adjustViewForKeyboardHeight:kbHeight];
+    
+}
 
-
+- (CGFloat)heightForNotification:(NSNotification *)notification {
+    NSValue *keyboardInfo = notification.userInfo[UIKeyboardFrameEndUserInfoKey];
+    CGRect rect = [keyboardInfo CGRectValue];
+    return rect.size.height;
+}
 
 
 @end
